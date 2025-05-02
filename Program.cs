@@ -1,54 +1,16 @@
-﻿using System.Diagnostics;
-using Silk.NET.SDL;
+﻿using System;
+using System.Windows.Forms;
 
-namespace TheAdventure;
-
-public static class Program
+namespace TheAdventure
 {
-    public static void Main()
+    static class Program
     {
-        var sdl = new Sdl(new SdlContext());
-
-        ulong framesRenderedCounter = 0;
-        var timer = new Stopwatch();
-
-        var sdlInitResult = sdl.Init(Sdl.InitVideo | Sdl.InitAudio | Sdl.InitEvents | Sdl.InitTimer |
-                                     Sdl.InitGamecontroller |
-                                     Sdl.InitJoystick);
-        if (sdlInitResult < 0)
+        [STAThread]
+        static void Main()
         {
-            throw new InvalidOperationException("Failed to initialize SDL.");
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+            Application.Run(new MainMenu());
         }
-
-        var gameWindow = new GameWindow(sdl);
-        var gameLogic = new GameLogic();
-        var gameRenderer = new GameRenderer(sdl, gameWindow, gameLogic);
-        var inputLogic = new InputLogic(sdl, gameLogic);
-
-        gameLogic.InitializeGame();
-
-        bool quit = false;
-        while (!quit)
-        {
-            quit = inputLogic.ProcessInput();
-            if (quit) break;
-            gameLogic.ProcessFrame();
-
-            #region Frame Timer
-
-            var elapsed = timer.Elapsed;
-            timer.Restart();
-
-            #endregion
-
-            gameRenderer.Render();
-
-            ++framesRenderedCounter;
-            System.Threading.Thread.Sleep(50);
-        }
-
-        gameWindow.Destroy();
-
-        sdl.Quit();
     }
 }

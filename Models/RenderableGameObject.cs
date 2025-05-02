@@ -7,7 +7,7 @@ public class RenderableGameObject : GameObject
 {
     public int TextureId { get; }
     public int TextureRotation { get; }
-    public Point TextureRotationCenter { get; }
+    public Silk.NET.SDL.Point TextureRotationCenter { get; }
     public Rectangle<int> TextureSource { get; set; }
     public Rectangle<int> TextureDestination { get; set; }
     public TextureData TextureInformation { get; }
