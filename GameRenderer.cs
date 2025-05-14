@@ -11,7 +11,7 @@ public unsafe class GameRenderer
 {
     private Sdl _sdl;
     private Renderer* _renderer;
-    private GameWindow _window;
+    private GameWindow? _window = null;
     private Camera _camera;
 
     private Dictionary<int, IntPtr> _texturePointers = new();
@@ -40,11 +40,22 @@ public unsafe class GameRenderer
         _camera.LookAt(x, y);
     }
 
-    public int LoadTexture(string fileName, out TextureData textureInfo)
+  public int LoadTexture(string fileName, out TextureData textureInfo)
+{
+    if (!File.Exists(fileName))
+    {
+        throw new FileNotFoundException($"The file {fileName} does not exist.");
+    }
+
+    try
     {
         using (var fStream = new FileStream(fileName, FileMode.Open))
         {
-            var image = Image.Load<Rgba32>(fStream);
+            var image = SixLabors.ImageSharp.Image.Load<Rgba32>(fStream);
+            if (image == null)
+            {
+                throw new Exception($"Failed to load image from file {fileName}.");
+            }
             textureInfo = new TextureData()
             {
                 Width = image.Width,
@@ -74,9 +85,14 @@ public unsafe class GameRenderer
                 _texturePointers[_textureId] = (IntPtr)imageTexture;
             }
         }
-
-        return _textureId++;
     }
+    catch (Exception ex)
+    {
+        throw new Exception($"Failed to load texture from file {fileName}.", ex);
+    }
+
+    return _textureId++;
+}
 
     public void RenderTexture(int textureId, Rectangle<int> src, Rectangle<int> dst,
         RendererFlip flip = RendererFlip.None, double angle = 0.0, Point center = default)
@@ -110,4 +126,21 @@ public unsafe class GameRenderer
     {
         _sdl.RenderPresent(_renderer);
     }
+
+public void Dispose()
+{
+    if (_renderer != null)
+    {
+        _sdl.DestroyRenderer((Renderer*)_renderer);
+        _renderer = null;
+    }
+
+    if (_window != null)
+    {
+        _window.Dispose();
+        _window = null;
+    }
+
+    GC.SuppressFinalize(this);
+}
 }

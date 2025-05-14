@@ -1,43 +1,31 @@
-﻿using Silk.NET.SDL;
-using Thread = System.Threading.Thread;
+﻿using System;
+using System.Threading;
+using Silk.NET.SDL;
 
-namespace TheAdventure;
-
-public static class Program
+namespace TheAdventure
 {
-    public static void Main()
+    static class Program
     {
-        var sdl = new Sdl(new SdlContext());
-
-        var sdlInitResult = sdl.Init(Sdl.InitVideo | Sdl.InitAudio | Sdl.InitEvents | Sdl.InitTimer |
-                                     Sdl.InitGamecontroller |
-                                     Sdl.InitJoystick);
-        if (sdlInitResult < 0)
+        [STAThread]
+        public static void Main()
         {
-            throw new InvalidOperationException("Failed to initialize SDL.");
-        }
+            // Initialize SDL
+            var sdl = new Sdl(new SdlContext());
+            var sdlInitResult = sdl.Init(Sdl.InitVideo | Sdl.InitAudio | Sdl.InitEvents | Sdl.InitTimer |
+                                         Sdl.InitGamecontroller |
+                                         Sdl.InitJoystick);
 
-        using (var gameWindow = new GameWindow(sdl))
-        {
-            var input = new Input(sdl);
-            var gameRenderer = new GameRenderer(sdl, gameWindow);
-            var engine = new Engine(gameRenderer, input);
-
-            engine.SetupWorld();
-
-            bool quit = false;
-            while (!quit)
+            if (sdlInitResult < 0)
             {
-                quit = input.ProcessInput();
-                if (quit) break;
-
-                engine.ProcessFrame();
-                engine.RenderFrame();
-
-                Thread.Sleep(13);
+                throw new InvalidOperationException("Failed to initialize SDL.");
             }
-        }
 
-        sdl.Quit();
+            // Create and show the main menu
+            var mainMenu = new MainMenu(sdl);
+            mainMenu.ShowDialog(); // Show main menu and wait for user to select difficulty
+
+            // Quit SDL once the main menu is closed
+            sdl.Quit();
+        }
     }
 }

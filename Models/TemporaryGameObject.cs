@@ -9,7 +9,7 @@ public class TemporaryGameObject : RenderableGameObject
     
     private DateTimeOffset _spawnTime;
     
-    public TemporaryGameObject(SpriteSheet spriteSheet, double ttl, (int X, int Y) position, double angle = 0.0, Point rotationCenter = new())
+    public TemporaryGameObject(SpriteSheet spriteSheet, double ttl, (int X, int Y) position, double angle = 0.0, Silk.NET.SDL.Point rotationCenter = new())
         : base(spriteSheet, position, angle, rotationCenter)
     {
         Ttl = ttl;

@@ -4,7 +4,10 @@ namespace TheAdventure.Models;
 
 public class PlayerObject : RenderableGameObject
 {
-    private const int _speed = 128; // pixels per second
+    private const int _defaultSpeed = 128; // Default speed in pixels per second
+    private DifficultySettings _difficultySettings;
+
+    public event Action OnPlayerDeath = () => { }; // Initialize with a default delegate
 
     public enum PlayerStateDirection
     {
@@ -26,8 +29,9 @@ public class PlayerObject : RenderableGameObject
 
     public (PlayerState State, PlayerStateDirection Direction) State { get; private set; }
 
-    public PlayerObject(SpriteSheet spriteSheet, int x, int y) : base(spriteSheet, (x, y))
+    public PlayerObject(SpriteSheet spriteSheet, int x, int y, DifficultySettings difficultySettings) : base(spriteSheet, (x, y))
     {
+        _difficultySettings = difficultySettings;
         SetState(PlayerState.Idle, PlayerStateDirection.Down);
     }
 
@@ -56,6 +60,7 @@ public class PlayerObject : RenderableGameObject
         else if (state == PlayerState.GameOver)
         {
             SpriteSheet.ActivateAnimation(Enum.GetName(state));
+            OnPlayerDeath(); // Notify that the player has died
         }
         else
         {
@@ -89,7 +94,7 @@ public class PlayerObject : RenderableGameObject
             return;
         }
 
-        var pixelsToMove = _speed * (time / 1000.0);
+        var pixelsToMove = _difficultySettings.PlayerSpeed * (time / 1000.0);
 
         var x = Position.X + (int)(right * pixelsToMove);
         x -= (int)(left * pixelsToMove);
@@ -117,7 +122,7 @@ public class PlayerObject : RenderableGameObject
         else
         {
             newState = PlayerState.Move;
-            
+
             if (y < Position.Y && newDirection != PlayerStateDirection.Up)
             {
                 newDirection = PlayerStateDirection.Up;

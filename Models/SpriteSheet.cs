@@ -97,7 +97,7 @@ public class SpriteSheet
         AnimationFinished = false;
     }
 
-    public void Render(GameRenderer renderer, (int X, int Y) dest, double angle = 0.0, Point rotationCenter = new())
+    public void Render(GameRenderer renderer, (int X, int Y) dest, double angle = 0.0, Silk.NET.SDL.Point rotationCenter = new())
     {
         if (ActiveAnimation == null)
         {
